@@ -1,13 +1,7 @@
-from __future__ import print_function
 import time
 import datetime
-from time import sleep
-from random import random
-from threading import Timer
-import pickle
 import sys
 from kafka import KafkaProducer
-import uuid
 import numpy as np
 import datetime
 import math
