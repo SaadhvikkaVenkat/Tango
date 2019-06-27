@@ -84,65 +84,55 @@ for i in range(len(newlist)):
        	coordinates_list.append(np.array(person_co, dtype=np.int))
        	time_list.append(datetime.datetime.utcfromtimestamp(int(inserted_at_li[i])).strftime('%Y-%m-%d %H:%M:%S'))
        	store_id = store_id_li[i]
+        
 time=[]
 loitering_time=0
 current_time=0
 loit=0
 time_loit_db_prev=datetime.datetime(1,1,1)
-#print(final_list)
+
+
 for i, (sub_list) in enumerate(final_list):
-    #count = 0
-    #print("iteration",count,"---------------------------------------------")
     for i, (sub_sub_list) in enumerate(sub_list[0]):
-        #if sub_sub_list[0]!='E':
+        if sub_sub_list[0]=='E':
         emp_centre[sub_sub_list] = (int((sub_list[1][i][0] + sub_list[1][i][2]) / 2), int(sub_list[1][i][1]),
                                         int((sub_list[1][i][2] - sub_list[1][i][0])))
-        #print(emp_centre)
-
-#emp_centre[sub_sub_list] =((sub_list[1][i][0]+[1][i][2])/2,sub_list[1][i][1],abs((sub_list[1][i][2]-sub_list[1][i][0])))
+        
+       
     if len(emp_centre) > 0:
         distance=sys.maxsize
-        #print(distance)
         for (k, v) in emp_centre.items():
             emp_id1 = k
             x1, y1, width = v[0], v[1], v[2]
             for i, (key, coord) in enumerate(emp_centre.items()):
                 if key == k:
                     continue
-                loit_p=loit
-                loitering_time_p=loitering_time
-                current_time_p=current_time
-                #time_loit_db_prev=time_loit_db[loit]
+                loit_prev=loit
+                loitering_time_prev=loitering_time
+                current_time_prev=current_time
                 temp = dist(x1, y1, coord[0], coord[1])
-                       #print(temp,"***********")
                 normalisation = (width + coord[2]) / 2
                 ndist = temp / normalisation
-                #print("distance-----",ndist)
                 if temp < distance:
                     distance = temp
                     emp_id2 = key
+                   #removing duplicates and combinations
                     x=list([emp_id1,emp_id2])
                     emp.append(x)
                     for i in emp:
                         y=list([i[1],i[0]])
                         if(y not in b and i not in b):
                             b.append(i)
-                    #print("KKKKKKKKKKKK",b)
                 loit=emp_id1+emp_id2
-                #print("===========",loit)
-
+                
                 if emp_id1!=emp_id2 and x in b:
-                           #print("********",loit)
-                           #print("---------------------------------------------")
                     if ndist < 2:
-                        #print(emp_id1,"and",emp_id2,"could be loittering")
-                               #flag=0
+                   
                         if loit not in time_loit_db.keys():
                             time_loit_db[loit] = datetime.datetime.strptime(sub_list[2][0], '%Y-%m-%d %H:%M:%S')
 
                         if loit in time_loit_db.keys():
                             current_time = datetime.datetime.strptime(sub_list[2][0], '%Y-%m-%d %H:%M:%S')
-                            #time_loit_db_prev=time_loit_db[loit]
                             if time_loit_db[loit] > current_time:
                                 loitering_time=(time_loit_db[loit]-current_time).seconds
                                 loitering_time=loitering_time/60
@@ -152,22 +142,21 @@ for i, (sub_list) in enumerate(final_list):
                                 loitering_time=loitering_time/60
                                 flag=0
 
-                            if loitering_time > 5 and loitering_time < 60 and loitering_time!=loitering_time_p and current_time!=current_time_p :
+                            if loitering_time > 5 and loitering_time < 60 and loitering_time!=loitering_time_prev and current_time!=current_time_prev :
                                 tempp=list([emp_id1,emp_id2])
                                 loit_emp.append(tempp)
-                                #time.append(loitering_time)
                                 if flag==1:
                                     print(emp_id1,"and",emp_id2,"loitered for",loitering_time,"minutes","from",current_time,"to",time_loit_db[loit])
                                 else:
                                     print(emp_id1,"and",emp_id2,"loitered for",loitering_time,"minutes","from",time_loit_db[loit],"to",current_time)
-                                #time_loit_db[loit]=current_time
+                                
                                 loit_emp.sort()
-                                if time_loit_db_prev < time_loit_db[loit] or time_loit_db[loit] < current_time_p and time_loit_db_prev!=datetime.datetime(1,1,1):
-                                    finalOutput = []
-                                    finalOutput.append( loit_emp[0] )
+                                if time_loit_db_prev < time_loit_db[loit] or time_loit_db[loit] < current_time_prev and time_loit_db_prev!=datetime.datetime(1,1,1):
+                                    group_loit = []
+                                    group_loit.append( loit_emp[0] )
                                     for i in loit_emp[1:]:
                                         flag = 0
-                                        for j in finalOutput:
+                                        for j in group_loit:
                                             if i[0] in j:
                                                 flag = 0
                                                 if i[1] not in j:
@@ -176,12 +165,12 @@ for i, (sub_list) in enumerate(final_list):
                                             else:
                                                 flag = 1
                                         if( flag == 1):
-                                            finalOutput.append( i )
+                                            group_loit.append( i )
                                     
                                     time_loit_db[loit]=current_time
                                 else:
                                     time_loit_db[loit]=current_time
                                 time_loit_db_prev=time_loit_db[loit]
-                                for i in range(len(finalOutput)):
-                                    if len(finalOutput[i]) > 2:
-                                        print( finalOutput[i],"are loitering as a group")
+                                for i in range(len(group_loit)):
+                                    if len(group_loit[i]) > 2:
+                                        print( group_loit[i],"are loitering as a group")
