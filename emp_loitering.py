@@ -95,7 +95,7 @@ time_loit_db_prev=datetime.datetime(1,1,1)
 for i, (sub_list) in enumerate(final_list):
     for i, (sub_sub_list) in enumerate(sub_list[0]):
         if sub_sub_list[0]=='E':
-        emp_centre[sub_sub_list] = (int((sub_list[1][i][0] + sub_list[1][i][2]) / 2), int(sub_list[1][i][1]),
+            emp_centre[sub_sub_list] = (int((sub_list[1][i][0] + sub_list[1][i][2]) / 2), int(sub_list[1][i][1]),
                                         int((sub_list[1][i][2] - sub_list[1][i][0])))
         
        
